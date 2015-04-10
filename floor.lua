@@ -1,12 +1,14 @@
 Door = class("Door")
 
-function Door:initialize(x, y, width, height)
+function Door:initialize(x, y, width, height, direction)
 
 	self.x = x
 	self.y = y
 
 	self.w = 50
 	self.h = 50
+
+	self.direction = direction
 
 end
 
@@ -55,10 +57,16 @@ end
 
 Floor = class("Floor")
 
-function Floor:initialize(roomW, roomH, roomCount, initX, initY)
+function Floor:initialize(roomW, roomH, doorW, doorH, player, roomCount, initX, initY)
 
 	self.roomW = roomW
 	self.roomH = roomH
+
+	self.doorW = doorW
+	self.doorH = doorH
+
+	self.player = player
+
 	self.roomCount = roomCount
 	self.initX = initX
 	self.initY = initY
@@ -71,6 +79,8 @@ function Floor:initialize(roomW, roomH, roomCount, initX, initY)
 
 	self.rooms = {}
 	self.doors = {}
+
+	self.disableDoors = false
 
 	self.padding = 110
 
@@ -134,19 +144,19 @@ function Floor:createDoors()
 		room_ygrid = self.rooms[i].ygrid
 
 		if self.grid[room_xgrid + 1][room_ygrid] == "room" then
-			self:newDoor(room_xgrid, room_ygrid, self.roomW - 50, self.roomH / 2)
+			self:newDoor(room_xgrid, room_ygrid, self.roomW - 50, (self.roomH / 2) - (self.doorH / 2), "right")
 		end
 
 		if self.grid[room_xgrid - 1][room_ygrid] == "room" then
-			self:newDoor(room_xgrid, room_ygrid, 0, self.roomH / 2)
+			self:newDoor(room_xgrid, room_ygrid, 0, (self.roomH / 2) - (self.doorH / 2), "left")
 		end
 
 		if self.grid[room_xgrid][room_ygrid + 1] == "room" then
-			self:newDoor(room_xgrid, room_ygrid, self.roomW / 2, self.roomH - 50)
+			self:newDoor(room_xgrid, room_ygrid, (self.roomW / 2) - (self.doorW / 2), self.roomH - 50, "down")
 		end
 
 		if self.grid[room_xgrid][room_ygrid - 1] == "room" then
-			self:newDoor(room_xgrid, room_ygrid, self.roomW / 2, 0)
+			self:newDoor(room_xgrid, room_ygrid, (self.roomW / 2) - (self.doorW / 2), 0, "up")
 		end
 
 	end
@@ -253,7 +263,7 @@ function Floor:newRoom(xgrid, ygrid)
 
 end
 
-function Floor:newDoor(xgrid, ygrid, xoffset, yoffset)
+function Floor:newDoor(xgrid, ygrid, xoffset, yoffset, direction)
 
 	xoffset = xoffset or 0
 	yoffset = yoffset or 0
@@ -261,7 +271,7 @@ function Floor:newDoor(xgrid, ygrid, xoffset, yoffset)
 	thisRoomX = (self.initX + (self.roomW + self.padding) * xgrid) + xoffset
 	thisRoomY = (self.initY + (self.roomH + self.padding) * ygrid) + yoffset
 
-	table.insert(self.doors, Door:new(thisRoomX, thisRoomY, 50, 50))
+	table.insert(self.doors, Door:new(thisRoomX, thisRoomY, 50, 50, direction))
 
 end
 
@@ -273,6 +283,46 @@ function Floor:draw()
 
 	for i, door in ipairs(self.doors) do
 		door:draw()
+	end
+
+end
+
+function Floor:update(dt)
+
+	for i, door in ipairs(self.doors) do
+
+		if self.player.x + (self.player.w / 2) > door.x and self.player.y + (self.player.h / 2) > door.y and self.player.x + (self.player.w / 2) < (door.x + door.w) and self.player.y + (self.player.h / 2) < (door.y + door.h) then
+				
+			if not self.disableDoors then
+
+				if door.direction == "up" then
+					self.player.y = self.player.y - 200
+					self.disableDoors = true
+					camera:jump("up")
+				end
+
+				if door.direction == "down" then
+					self.player.y = self.player.y + 200
+					self.disableDoors = true
+					camera:jump("down")
+				end
+
+				if door.direction == "left" then
+					self.player.x = self.player.x - 200
+					self.disableDoors = true
+					camera:jump("left")
+				end
+
+				if door.direction == "right" then
+					self.player.x = self.player.x + 200
+					self.disableDoors = true
+					camera:jump("right")
+				end
+
+			end
+		else
+			self.disableDoors = false
+		end
 	end
 
 end

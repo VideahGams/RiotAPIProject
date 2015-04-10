@@ -6,7 +6,7 @@ font = love.graphics.newFont('fonts/OpenSans-Regular.ttf', 28)
 smallfont = love.graphics.newFont('fonts/OpenSans-Regular.ttf', 16)
 
 debug = true
-cameracontrol = true
+cameracontrol = false
 
 state = require("state")
 state.setState("game")
@@ -20,6 +20,8 @@ class = require("middleclass")
 
 floor = require("floor")
 
+player = require("player")
+
 --playername = api:summonerName(31097351) -- MrDrAwesome's Summoner ID
 
 function love.load()
@@ -29,15 +31,16 @@ function love.load()
 	window_width = love.graphics.getWidth()
 	window_height = love.graphics.getHeight()
 
-	room_width = 800
-	room_height = 500
+	roomWidth = 800
+	roomHeight = 500
 
 	camera:setPosition(0, -50)
 
-	math.randomseed(1234)
+	math.randomseed(12345791)
 
-	the_floor = floor:new(room_width, room_height, 100, window_width / 2 - room_width / 2, window_height / 2 - room_height / 2)
+	gameplayer = player:new((roomWidth / 2) - (50 / 2), (roomHeight / 2) - (50 / 2) + 50, 50, 50, 250)
 
+	the_floor = floor:new(roomWidth, roomHeight, 50, 50, gameplayer, 8, window_width / 2 - roomWidth / 2, window_height / 2 - roomHeight / 2)
 
 end
 
@@ -53,6 +56,8 @@ function love.draw()
 	love.graphics.setColor(50, 50, 50)
 
 	love.graphics.rectangle("fill", camera.x, camera.y, 800, 100)
+
+	gameplayer:draw()
 
 	camera:unset()
 
@@ -79,6 +84,9 @@ function love.update(dt)
 		end
 
 	end
+
+	gameplayer:update(dt)
+	the_floor:update(dt)
 
 end
 
