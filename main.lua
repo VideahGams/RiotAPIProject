@@ -53,11 +53,11 @@ function love.draw()
 
 	the_floor:draw()
 
+	gameplayer:draw()
+
 	love.graphics.setColor(50, 50, 50)
 
 	love.graphics.rectangle("fill", camera.x, camera.y, 800, 100)
-
-	gameplayer:draw()
 
 	camera:unset()
 

@@ -10,13 +10,25 @@ function Door:initialize(x, y, width, height, direction)
 
 	self.direction = direction
 
+	if self.direction == "up" then
+		self.image = love.graphics.newImage("images/testdoorup.png")
+	elseif self.direction == "down" then
+		self.image = love.graphics.newImage("images/testdoordown.png")
+	elseif self.direction == "left" then
+		self.image = love.graphics.newImage("images/testdoorleft.png")
+	elseif self.direction == "right" then
+		self.image = love.graphics.newImage("images/testdoorright.png")
+	end
+
 end
 
 function Door:draw()
 
 	love.graphics.setColor(255, 255, 255)
 
-	love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
+	--love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
+
+	love.graphics.draw(self.image, self.x, self.y)
 
 end
 
